@@ -2,13 +2,15 @@ RSpec.feature 'One-Step Process Workflow' do
   subject(:publication) { build(:publication) }
   let(:ability)         { Ability.new(create(:user)) }
   let(:actor_stack)     { Hyrax::CurationConcern.actor }
+  let(:approver)        { create(:user) }
   let(:attrs)           { {} }
+  let(:entity)          { PowerConverter.convert(publication, to: :sipity_entity) }
 
   let(:actor_env) do
     Hyrax::Actors::Environment.new(publication, ability, attrs)
   end
 
-  before do
+  before(:context) do
     admin_set_id = AdminSet.find_or_create_default_admin_set_id
     workflow_id  = Sipity::Workflow.find_by!(name: 'spot_one_step_process').id
 
@@ -21,14 +23,17 @@ RSpec.feature 'One-Step Process Workflow' do
   before { actor_stack.create(actor_env) }
 
   it 'workflow is initialized as "spot_one_step_process"' do
-    entity = PowerConverter.convert(publication, to: :sipity_entity)
-
     expect(entity.workflow)
       .to have_attributes name: 'spot_one_step_process'
   end
 
   shared_examples 'a commentable state' do
-    it 'can be commented on'
+    xit 'can be commented on' do
+      expect(Hyrax::Workflow::PermissionQuery
+        .scope_permitted_workflow_actions_available_for_current_state(entity: entity,
+                                                                      user: approver))
+        .to include :comment
+    end
   end
 
   context 'when in processing state' do
