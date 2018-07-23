@@ -21,10 +21,9 @@
         },
         {
           "name": "comment",
-          "from_states": [{"names": ["processing", "processed"], "roles": ["approving"]}],
+          "from_states": []
         }
-
       ]
     }
   ]
-]
+}
